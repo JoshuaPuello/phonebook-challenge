@@ -14,4 +14,8 @@ public interface ContactRepository extends JpaRepository<Contact, String> {
             "OR c.lastName LIKE %?1% OR c.address LIKE %?1% " +
             "OR c.email LIKE %?1% OR c.phoneNumber LIKE %?1%")
     List<Contact> findContactByAnyColumnContainingText(String text);
+
+    Contact findContactByEmail(String email);
+
+    Contact findContactByPhoneNumber(String phoneNumber);
 }
