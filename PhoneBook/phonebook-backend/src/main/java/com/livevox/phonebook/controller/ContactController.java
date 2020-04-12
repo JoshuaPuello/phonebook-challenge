@@ -2,6 +2,7 @@ package com.livevox.phonebook.controller;
 
 import com.livevox.phonebook.service.ContactService;
 import com.livevox.phonebook.shared.dto.ContactDTO;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
+@CrossOrigin("http://localhost:3000")
 @RequestMapping("/contacts")
 public class ContactController {
 
