@@ -1,5 +1,11 @@
 # README #
 
+### Summary ###
+
+* RDBMS: PostgreSQL
+* Back-end: Java 8, Spring boot, Spring Data JPA.
+* Front-end: React JS.
+
 ### Requirements ###
 
 Make sure you have Docker installed.
