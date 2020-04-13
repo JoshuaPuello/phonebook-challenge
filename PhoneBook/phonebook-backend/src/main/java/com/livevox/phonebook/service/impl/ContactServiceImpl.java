@@ -39,7 +39,7 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public List<ContactDTO> findContactByText(String text) {
-        List<Contact> contactList = contactRepository.findContactByAnyColumnContainingText(text);
+        List<Contact> contactList = contactRepository.findContactByAnyColumnContainingText(text.toLowerCase());
         if (CollectionUtils.isEmpty(contactList)) {
             throw new ContactServiceException(NO_RECORD_FOUND, NOT_FOUND);
         }

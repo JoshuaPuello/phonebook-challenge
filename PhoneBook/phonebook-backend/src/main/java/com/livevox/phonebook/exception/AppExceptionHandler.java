@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -30,11 +31,11 @@ public class AppExceptionHandler {
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     public ResponseEntity<Object> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, Object> errors = getErrorsMap(ex);
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
+        String strErrors = ex.getBindingResult().getAllErrors()
+                .stream()
+                .map(err -> ((FieldError) err).getField())
+                .collect(Collectors.joining(", ", "Invalid status for fields: [", "]"));
+        if (strErrors.length() > 0) errors.put("error", strErrors);
         return new ResponseEntity<>(errors, new HttpHeaders(), BAD_REQUEST);
     }
 
