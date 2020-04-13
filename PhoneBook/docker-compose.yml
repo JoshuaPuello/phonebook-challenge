@@ -1,0 +1,56 @@
+version: "3"
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=phonebook
+    restart: unless-stopped
+    networks:
+      - backend
+
+  springbootapp:
+    image: phonebook-backend
+    container_name: phonebook-backend
+    build: ./phonebook-backend
+    expose:
+      - 8083
+    ports:
+      - 8083:8083
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    networks:
+      - backend
+      - frontend
+
+  reactapp:
+    container_name: phonebook-client
+    build: ./phonebook-client/
+    ports:
+      - 3001:80
+    volumes:
+      - ./phonebook-client:/app
+      - /app/node_modules
+    restart: always
+    depends_on:
+      - springbootapp
+    networks:
+      - frontend
+
+volumes:
+  postgres-data:
+
+networks:
+  backend:
+  frontend:

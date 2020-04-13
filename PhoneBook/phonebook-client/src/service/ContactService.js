@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export default class ContactService {
-  baseUrl = `http://localhost:8083/api/contacts/`;
+  baseUrl = `http://127.0.0.1:8083/api/contacts/`;
 
   getAll() {
     return axios
