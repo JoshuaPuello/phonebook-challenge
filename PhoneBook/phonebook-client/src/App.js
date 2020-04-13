@@ -1,18 +1,12 @@
 import React, { Component } from "react";
-import "./App.css";
-import ContactService from "./service/ContactService";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import { Panel } from "primereact/panel";
-import { Menubar } from "primereact/menubar";
-import { Dialog } from "primereact/dialog";
-import { InputText } from "primereact/inputtext";
-import { Button } from "primereact/button";
 import { Growl } from "primereact/growl";
+import ContactService from "./service/ContactService";
+import PhoneBook from "./component/PhoneBook";
 
-import "primereact/resources/themes/nova-light/theme.css";
-import "primereact/resources/primereact.min.css";
+import "./App.css";
 import "primeicons/primeicons.css";
+import "primereact/resources/primereact.min.css";
+import "primereact/resources/themes/nova-light/theme.css";
 
 export default class App extends Component {
   constructor() {
@@ -25,163 +19,82 @@ export default class App extends Component {
         email: "",
         phoneNumber: "",
       },
-      visible: false,
+      inputValue: "",
     };
-    this.items = [
-      {
-        label: "Create",
-        icon: "pi pi-fw pi-plus",
-        command: () => {
-          this.showDialog();
-        },
-      },
-    ];
     this.contactService = new ContactService();
-    this.save = this.save.bind(this);
-    this.footer = (
-      <div>
-        <Button label="Save" icon="pi pi-check" onClick={this.save} />
-      </div>
-    );
+    this.saveContact = this.saveContact.bind(this);
+    this.getAllContacts = this.getAllContacts.bind(this);
+    this.getContactsByText = this.getContactsByText.bind(this);
   }
 
   componentDidMount() {
+    this.getAllContacts();
+  }
+
+  getAllContacts() {
     this.contactService.getAll().then((data) => {
       this.setState({ contacts: data });
     });
   }
 
-  save() {
+  saveContact() {
     this.contactService.save(this.state.contact).then((data) => {
-      this.setState({
-        visible: false,
-        contact: {
-          firstName: "",
-          lastName: "",
-          address: "",
-          email: "",
-          phoneNumber: "",
-        },
-      });
-      this.growl.show({
-        severity: "success",
-        summary: "Success!",
-        detail: "Contact submitted",
-      });
-      this.contactService.getAll().then((data) => {
-        this.setState({ contacts: data });
-      });
+      this.showSuccess();
+      this.clearContact();
+      this.getAllContacts();
+    }).catch((error) => {
+      if (error.response) {
+        this.showError(error.response.data.error);
+      }
     });
   }
 
-  render() {
-    return (
-      <div style={{ margin: "20px auto 0", width: "80%" }}>
-        <Menubar model={this.items} />
-        <br />
-        <Panel header="Phone Book">
-          <DataTable className="p-datatable-responsive p-datatable" value={this.state.contacts}>
-            <Column field="firstName" header="First name"></Column>
-            <Column field="lastName" header="Last name"></Column>
-            <Column field="address" header="Address"></Column>
-            <Column field="email" header="Email"></Column>
-            <Column field="phoneNumber" header="Phone number"></Column>
-          </DataTable>
-        </Panel>
-
-        <Dialog
-          header="Crear contact"
-          footer={this.footer}
-          visible={this.state.visible}
-          style={{ width: "400" }}
-          modal={true}
-          onHide={() => this.setState({ visible: false })}
-        >
-          <form id="contact-form">
-            <span className="p-float-label">
-              <InputText
-                value={this.state.contact.firstName}
-                onChange={(e) => {
-                  let value = e.target.value;
-                  this.setState((prevState) => {
-                    let contact = Object.assign({}, prevState.contact);
-                    contact.firstName = value;
-                    return { contact };
-                  });
-                }}
-              />
-              <label htmlFor="firstName">First name</label>
-            </span>
-
-            <span className="p-float-label">
-              <InputText
-                value={this.state.contact.lastName}
-                onChange={(e) => {
-                  let value = e.target.value;
-                  this.setState((prevState) => {
-                    let contact = Object.assign({}, prevState.contact);
-                    contact.lastName = value;
-                    return { contact };
-                  });
-                }}
-              />
-              <label htmlFor="lastName">Last name</label>
-            </span>
-
-            <span className="p-float-label">
-              <InputText
-                value={this.state.contact.address}
-                onChange={(e) => {
-                  let value = e.target.value;
-                  this.setState((prevState) => {
-                    let contact = Object.assign({}, prevState.contact);
-                    contact.address = value;
-                    return { contact };
-                  });
-                }}
-              />
-              <label htmlFor="address">Address</label>
-            </span>
-
-            <span className="p-float-label">
-              <InputText
-                value={this.state.contact.email}
-                onChange={(e) => {
-                  let value = e.target.value;
-                  this.setState((prevState) => {
-                    let contact = Object.assign({}, prevState.contact);
-                    contact.email = value;
-                    return { contact };
-                  });
-                }}
-              />
-              <label htmlFor="email">Email</label>
-            </span>
-
-            <span className="p-float-label">
-              <InputText
-                value={this.state.contact.phoneNumber}
-                onChange={(e) => {
-                  let value = e.target.value;
-                  this.setState((prevState) => {
-                    let contact = Object.assign({}, prevState.contact);
-                    contact.phoneNumber = value;
-                    return { contact };
-                  });
-                }}
-              />
-              <label htmlFor="phoneNumber">Phone number</label>
-            </span>
-          </form>
-        </Dialog>
-        <Growl ref={(el) => (this.growl = el)} />
-      </div>
-    );
+  showSuccess() {
+    this.growl.show({
+      severity: "success",
+      summary: "Success!",
+      detail: "Contact submitted",
+    });
   }
 
-  showDialog() {
+  showError(error) {
+    this.growl.show({
+      sticky: true,
+      severity: "error",
+      summary: "Error message!",
+      detail: error,
+    });
+  }
+
+  getContactsByText(text) {
+    this.contactService.getByText(text).then((data) => {
+      this.setState({
+        contacts: data,
+        inputValue: "",
+      });
+    });
+  };
+
+  handleSearchClick = () => {
+    this.getContactsByText(this.state.inputValue);
+  };
+
+  handleInputChange = (e) => {
     this.setState({
-      visible: true,
+      inputValue: e.target.value,
+    });
+  };
+
+  handleFieldChange = (field, value) => {
+    this.setState((prevState) => {
+      let contact = Object.assign({}, prevState.contact);
+      contact[field] = value;
+      return { contact };
+    });
+  };
+
+  clearContact = () => {
+    this.setState({
       contact: {
         firstName: "",
         lastName: "",
@@ -190,5 +103,23 @@ export default class App extends Component {
         phoneNumber: "",
       },
     });
+  }
+
+  render() {
+    return (
+      <div style={{ margin: "20px auto 0", width: "80%" }}>
+        <PhoneBook
+          contact={this.state.contact}
+          contacts={this.state.contacts}
+          inputValue={this.state.inputValue}
+          handleSearchClick={this.handleSearchClick}
+          handleInputChange={this.handleInputChange}
+          handleFieldChange={this.handleFieldChange}
+          handleOnListAll={this.getAllContacts}
+          handleOnSave={this.saveContact}
+        />
+        <Growl ref={(el) => (this.growl = el)} />
+      </div>
+    );
   }
 }
