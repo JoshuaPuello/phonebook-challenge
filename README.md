@@ -1,5 +1,26 @@
 # README #
 
+### Requirements ###
+
+Make sure you have Docker installed.
+
+* [Docker] https://docs.docker.com/install/
+* [Docker-compose] https://docs.docker.com/compose/install/
+
+### How to execute ###
+
+```
+git clone git@github.com:JoshuaPuello/phonebook-challenge.git
+cd phonebook-challenge/PhoneBook/
+docker-compose up --build
+```
+### URLs ###
+
+* Swagger: https://localhost:8083/api/swagger-ui.html
+* Client: https://localhost:3001/
+
+<hr />
+
 ### The Phonebook code challenge ###
 
 This is the code challenge for JAVA developers. It aims to determine the coding competence on potential candidates.
